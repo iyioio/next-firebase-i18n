@@ -1,0 +1,2 @@
+GET http://localhost:5000
+Cookie: firebase-country-override=MX; firebase-language-override=es
