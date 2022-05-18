@@ -8,7 +8,6 @@ import '../styles/globals.css';
 function MyApp({ Component, pageProps }: AppProps) {
 
   const locals=useCreateLocaleContext(i18nConfig)
-  
   const localeLinks=useLocaleLinks(locals);
 
   return (
