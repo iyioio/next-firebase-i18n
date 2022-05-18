@@ -58,7 +58,7 @@ const Home: NextPage<HomeProps> = ({strings}) => {
 
         <LocalPicker />
 
-        <p><Link href={'other'}>Other</Link></p>
+        <p><Link href={'/other'}>Other</Link></p>
       </main>
     </div>
   )

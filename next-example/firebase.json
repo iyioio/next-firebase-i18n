@@ -1,17 +1,13 @@
 {
-  "firestore": {
-    "rules": "firestore.rules",
-    "indexes": "firestore.indexes.json"
-  },
   "hosting": {
-    "public": "public",
+    "public": "./out-i18n",
     "ignore": [
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
     ],
     "i18n": {
-      "root": "/lr"
+      "root": "/lrc"
     },
     "rewrites": [
       {
@@ -22,9 +18,6 @@
     "cleanUrls":true
   },
   "emulators": {
-    "firestore": {
-      "port": 8080
-    },
     "hosting": {
       "port": 5000
     },

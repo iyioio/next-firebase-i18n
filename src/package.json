@@ -1,0 +1,32 @@
+{
+  "name": "@iyio/next-firebase-i18n",
+  "version": "0.0.1",
+  "description": "",
+  "main": "dist/next-firebase-i18n-index.js",
+  "types": "dist/next-firebase-i18n-index.d.ts",
+  "scripts": {
+    "watch": "tsc --watch",
+    "build": "tsc",
+    "build-publish": "npm run build && npm publish",
+    "build-example": "npm run build && node dist/bin/next-build-i18n.js --src ../next-example"
+  },
+  "bin": {
+    "next-build-i18": "bin/next-build-i18.js"
+  },
+  "repository": {
+    "type": "git",
+    "directory": "next-firebase-i18n/",
+    "url": "https://github.com/iyioio/next-firebase-i18n.git"
+  },
+  "keywords": [],
+  "author": "Scott Vance",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/command-line-args": "^5.2.0",
+    "@types/shelljs": "^0.8.11",
+    "chalk": "^4.1.2",
+    "command-line-args": "^5.2.1",
+    "shelljs": "^0.8.5",
+    "typescript": "^4.6.4"
+  }
+}

@@ -58,7 +58,7 @@ const Other: NextPage<OtherProps> = ({strings}) => {
 
         <LocalPicker />
 
-        <p><Link href={'index'}>Index</Link></p>
+        <p><Link href={'/'}>Index</Link></p>
       </main>
     </div>
   )
