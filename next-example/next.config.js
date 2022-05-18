@@ -1,17 +1,8 @@
+const { applyNextI18nConfig } = require('@iyio/next-firebase-i18n')
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  basePath:process.env.I18N_BASE_PATH||'',
-  webpack:(config)=>{
-    if(!config.resolve){
-      config.resolve={}
-    }
-    if(!config.resolve.fallback){
-      config.resolve.fallback={}
-    }
-    config.resolve.fallback.fs=false;
-    return config;
-  }
 }
 
-module.exports = nextConfig
+module.exports = applyNextI18nConfig(nextConfig);

@@ -1,8 +1,7 @@
+import { ExampleLocalePicker, getLanguageRegion } from '@iyio/next-firebase-i18n';
 import type { GetStaticProps, NextPage } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
-import ExampleLocalePicker from '../components/ExampleLocalePicker';
-import { getLanguageRegion } from '../lib/local';
 import styles from '../styles/Home.module.css';
 
 interface Strings

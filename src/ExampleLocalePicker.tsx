@@ -1,9 +1,9 @@
 import React, { useCallback } from 'react';
-import { LanguageRegion, useLocale } from '../lib/local';
+import { LanguageRegion, useLocale } from './lib';
 
 
 
-export default function ExampleLocalePicker(){
+export function ExampleLocalePicker(){
 
     const locals=useLocale();
 

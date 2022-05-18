@@ -1,7 +1,7 @@
 {
   "name": "@iyio/next-firebase-i18n",
-  "version": "0.0.1",
-  "description": "",
+  "version": "0.0.4",
+  "description": "NextJS SSG and Firebase i18n support",
   "main": "dist/next-firebase-i18n-index.js",
   "types": "dist/next-firebase-i18n-index.d.ts",
   "scripts": {
@@ -11,22 +11,29 @@
     "build-example": "npm run build && node dist/bin/next-build-i18n.js --src ../next-example"
   },
   "bin": {
-    "next-build-i18": "bin/next-build-i18.js"
+    "next-build-i18": "dist/bin/next-build-i18n.js"
   },
   "repository": {
     "type": "git",
     "directory": "next-firebase-i18n/",
     "url": "https://github.com/iyioio/next-firebase-i18n.git"
   },
-  "keywords": [],
+  "keywords": ["next","nextjs","firebase","i18n","ssg"],
   "author": "Scott Vance",
   "license": "ISC",
   "devDependencies": {
     "@types/command-line-args": "^5.2.0",
+    "@types/react": "*",
     "@types/shelljs": "^0.8.11",
-    "chalk": "^4.1.2",
-    "command-line-args": "^5.2.1",
-    "shelljs": "^0.8.5",
     "typescript": "^4.6.4"
+  },
+  "dependencies": {
+    "chalk": "4",
+    "command-line-args": "5",
+    "shelljs": "0"
+  },
+  "peerDependencies": {
+    "next": "*",
+    "react": "*"
   }
 }

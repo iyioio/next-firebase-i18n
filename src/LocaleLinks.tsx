@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router';
 import React from 'react';
-import { LocaleContext, useLocale } from '../lib/local';
+import { LocaleContext, useLocale } from './lib';
 
 export function useLocaleLinks(localsDefault?:LocaleContext)
 {

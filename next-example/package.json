@@ -4,12 +4,13 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next-build-i18",
     "start": "next start",
     "lint": "next lint",
-    "emulators":"firebase emulators:start"
+    "emulators": "firebase emulators:start"
   },
   "dependencies": {
+    "@iyio/next-firebase-i18n": "0.0.4",
     "next": "12.1.6",
     "react": "18.1.0",
     "react-dom": "18.1.0"

@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import { createContext, useContext, useMemo, useRef } from "react";
-import { defaultCookiesLocalsSubDir, defaultDomain, defaultLocals, defaultLocalsSubDir, defaultNextOut, defaultOut, I18nBuildConfig } from "../_tmp";
+import { defaultCookiesLocalsSubDir, defaultDomain, defaultLocals, defaultLocalsSubDir, defaultNextOut, defaultOut, I18nBuildConfig } from "./types";
 
 const isDev=process.env.NODE_ENV==='development';
 
