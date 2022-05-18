@@ -1,8 +1,8 @@
-const { applyNextI18nConfig } = require('@iyio/next-firebase-i18n')
+const { applyNi18nConfig } = require('@iyio/ni18')
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
 }
 
-module.exports = applyNextI18nConfig(nextConfig);
+module.exports = applyNi18nConfig(nextConfig);

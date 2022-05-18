@@ -2,12 +2,12 @@ import commandLineArgs from 'command-line-args';
 import * as fs from 'fs';
 import path from 'path';
 import shell from 'shelljs';
-import { defaultConfigPath, defaultCookiesLocalsSubDir, defaultDomain, defaultLocalsSubDir, defaultNextOut, defaultOut, I18nBuildCliArgs, I18nBuildConfig } from '../types';
+import { defaultConfigPath, defaultCookiesLocalsSubDir, defaultDomain, defaultLocalsSubDir, defaultNextOut, defaultOut, Ni18CliArgs, Ni18Config } from '../types';
 import { buildI18n } from './next-build-i18n-lib';
 
 shell.set('-e');
 
-const args:I18nBuildCliArgs=commandLineArgs([
+const args:Ni18CliArgs=commandLineArgs([
     {name:'config',type:String,alias:'c'},
     {name:'src',type:String,alias:'s'},
     {name:'locals',type:String,alias:'r',multiple:true,defaultOption:true},
@@ -48,14 +48,14 @@ if(args.out){
 
 args.domain=args.domain || process.env.DOMAIN || defaultDomain;
 
-function requireProp<T extends keyof I18nBuildConfig>(
-    args:Partial<I18nBuildConfig>,
-    prop:T):I18nBuildConfig[T]{
+function requireProp<T extends keyof Ni18Config>(
+    args:Partial<Ni18Config>,
+    prop:T):Ni18Config[T]{
     if(args[prop]===undefined){
         console.error(`--${prop} required`);
         shell.exit(1);
     }
-    return (args as I18nBuildConfig)[prop];
+    return (args as Ni18Config)[prop];
 }
 
 buildI18n({

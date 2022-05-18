@@ -1,11 +1,12 @@
 import React, { useCallback } from 'react';
-import { LanguageRegion, useLocale } from './lib';
+import { useNi18 } from './lib';
+import { LanguageRegion } from './types';
 
 
 
 export function ExampleLocalePicker(){
 
-    const locals=useLocale();
+    const locals=useNi18();
 
     const setLocal=useCallback((local:LanguageRegion)=>{
         locals.setCurrentAsync(local);

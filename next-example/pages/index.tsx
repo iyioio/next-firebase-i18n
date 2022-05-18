@@ -1,4 +1,4 @@
-import { ExampleLocalePicker, getLanguageRegion } from '@iyio/next-firebase-i18n';
+import { ExampleLocalePicker, getLanguageRegion } from '@iyio/ni18';
 import type { GetStaticProps, NextPage } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';

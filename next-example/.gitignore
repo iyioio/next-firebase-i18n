@@ -102,4 +102,4 @@ yarn-error.log*
 
 # i18n
 /out-i18n
-.i18n-dev-override
+.ni18-dev-override

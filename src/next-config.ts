@@ -1,6 +1,6 @@
 import { NextConfig } from "next";
 
-export function applyNextI18nConfig(config:NextConfig):NextConfig
+export function applyNi18nConfig(config:NextConfig):NextConfig
 {
     if(!config.basePath && process.env.I18N_BASE_PATH){
         config.basePath=process.env.I18N_BASE_PATH;

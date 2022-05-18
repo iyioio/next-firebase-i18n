@@ -1,10 +1,10 @@
 import { useRouter } from 'next/router';
 import React from 'react';
-import { LocaleContext, useLocale } from './lib';
+import { Ni18Context, useNi18 } from './lib';
 
-export function useLocaleLinks(localsDefault?:LocaleContext)
+export function useNi18Links(localsDefault?:Ni18Context)
 {
-    const locals=useLocale(localsDefault);
+    const locals=useNi18(localsDefault);
 
     const router=useRouter();
 

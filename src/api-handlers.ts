@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSideLocaleOverride, setServerSideLocaleOverride } from "./lib";
 
-export function devI18nHandler(req:NextApiRequest, res:NextApiResponse){
+export function devNi18Handler(req:NextApiRequest, res:NextApiResponse){
     if(process.env.NODE_ENV!=='development'){
         res.status(400).json({error:'Not in dev mode'});
         return;

@@ -1,9 +1,9 @@
 {
-  "name": "@iyio/next-firebase-i18n",
-  "version": "0.0.4",
-  "description": "NextJS SSG and Firebase i18n support",
-  "main": "dist/next-firebase-i18n-index.js",
-  "types": "dist/next-firebase-i18n-index.d.ts",
+  "name": "@iyio/ni18",
+  "version": "0.0.5",
+  "description": "Add internationalization support NextJS SSG ( next export )",
+  "main": "dist/ni18-index.js",
+  "types": "dist/ni18-index.d.ts",
   "scripts": {
     "watch": "tsc --watch",
     "build": "tsc",
@@ -11,14 +11,13 @@
     "build-example": "npm run build && node dist/bin/next-build-i18n.js --src ../next-example"
   },
   "bin": {
-    "next-build-i18": "dist/bin/next-build-i18n.js"
+    "ni18": "dist/bin/next-build-i18n.js"
   },
   "repository": {
     "type": "git",
-    "directory": "next-firebase-i18n/",
     "url": "https://github.com/iyioio/next-firebase-i18n.git"
   },
-  "keywords": ["next","nextjs","firebase","i18n","ssg"],
+  "keywords": ["next","nextjs","firebase","i18n","ssg","ni18","iyio"],
   "author": "Scott Vance",
   "license": "ISC",
   "devDependencies": {

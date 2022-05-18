@@ -1,3 +1,3 @@
-import { devI18nHandler as handler } from "@iyio/next-firebase-i18n";
+import { devNi18Handler as handler } from "@iyio/ni18";
 
 export default handler;

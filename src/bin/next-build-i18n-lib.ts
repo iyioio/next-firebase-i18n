@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 import shell from 'shelljs';
-import { I18nBuildConfig } from '../types';
+import { Ni18Config } from '../types';
 
 const subReplace=   '___RE-PLACE__B-A-S-E___';
 const subReplaceReg=/___RE-PLACE__B-A-S-E___/g;
@@ -14,7 +14,7 @@ export interface BuildInfo{
     lng:string;
 }
 
-export function buildI18n(config:I18nBuildConfig):BuildInfo[]
+export function buildI18n(config:Ni18Config):BuildInfo[]
 {
 
     const localsDir=config.out+'/'+config.localsSubDir;

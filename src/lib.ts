@@ -1,12 +1,10 @@
 import * as fs from 'fs';
 import { createContext, useContext, useMemo, useRef } from "react";
-import { defaultCookiesLocalsSubDir, defaultDomain, defaultLocals, defaultLocalsSubDir, defaultNextOut, defaultOut, I18nBuildConfig } from "./types";
+import { defaultCookiesLocalsSubDir, defaultDomain, defaultLocals, defaultLocalsSubDir, defaultNextOut, defaultOut, LanguageRegion, Ni18Config, ssOverrideFile } from "./types";
 
 const isDev=process.env.NODE_ENV==='development';
 
 const isServerSide=typeof window === 'undefined';
-
-const ssOverrideFile='.i18n-dev-override';
 
 /**
  * Returns server side locale overrides
@@ -51,16 +49,6 @@ export function setServerSideLocaleOverride(override:LanguageRegion|null):void
 }
 
 /**
- * Represents a language and region
- */
-export interface LanguageRegion
-{
-    language:string;
-    region:string;
-    tag:string;
-}
-
-/**
  * Parses a string into a LanguageRegion
  */
 export function parseLanguageRegion(str:string,defaults?:LanguageRegion):LanguageRegion
@@ -78,7 +66,7 @@ export function parseLanguageRegion(str:string,defaults?:LanguageRegion):Languag
 /**
  * Returns a LanguageRegion based on the provided config
  */
-export function getLanguageRegion(config?:Partial<I18nBuildConfig>):LanguageRegion
+export function getLanguageRegion(config?:Partial<Ni18Config>):LanguageRegion
 {
     const _config=createLocaleConfig(config);
 
@@ -135,15 +123,15 @@ export function getLanguageRegion(config?:Partial<I18nBuildConfig>):LanguageRegi
     return parseLanguageRegion(language+'-'+region);
 }
 
-let defaultConfig:I18nBuildConfig|null=null;
-function _getDefaultConfig():Readonly<I18nBuildConfig>
+let defaultConfig:Ni18Config|null=null;
+function _getDefaultConfig():Readonly<Ni18Config>
 {
     if(defaultConfig){
         return defaultConfig;
     }
 
     if(isServerSide && process.env.I18N_CONFIG){
-        defaultConfig=JSON.parse(process.env.I18N_CONFIG) as I18nBuildConfig;
+        defaultConfig=JSON.parse(process.env.I18N_CONFIG) as Ni18Config;
         return defaultConfig;
     }
     
@@ -160,15 +148,15 @@ function _getDefaultConfig():Readonly<I18nBuildConfig>
 }
 
 /**
- * Returns a default I18nBuildConfig based on the current environment
+ * Returns a default Ni18Config based on the current environment
  */
-export function getDefaultConfig():I18nBuildConfig
+export function getDefaultConfig():Ni18Config
 {
     return {..._getDefaultConfig()}
 }
 
 /**
- * Creates a fully defined I18nBuildConfig using defaults for properties not provided
+ * Creates a fully defined Ni18Config using defaults for properties not provided
  */
 export function createLocaleConfig({
     locals=_getDefaultConfig().locals,
@@ -177,7 +165,7 @@ export function createLocaleConfig({
     localsSubDir=_getDefaultConfig().localsSubDir,
     cookiesLocalsSubDir=_getDefaultConfig().cookiesLocalsSubDir,
     domain=_getDefaultConfig().domain,
-}:Partial<I18nBuildConfig>={}):I18nBuildConfig{
+}:Partial<Ni18Config>={}):Ni18Config{
 
     return {
         locals,
@@ -192,7 +180,7 @@ export function createLocaleConfig({
 /**
  * Manages the current locale
  */
-export class LocaleContext
+export class Ni18Context
 {
 
     public readonly supported:LanguageRegion[];
@@ -202,9 +190,9 @@ export class LocaleContext
         return this._current;
     }
 
-    public readonly config:Readonly<I18nBuildConfig>;
+    public readonly config:Readonly<Ni18Config>;
 
-    public constructor(config:I18nBuildConfig)
+    public constructor(config:Ni18Config)
     {
 
         this.config=Object.freeze({...config})
@@ -269,33 +257,33 @@ export class LocaleContext
 }
 
 /**
- * Provides a LocaleContext for use by the useLocals hook
+ * Provides a Ni18Context for use by the useLocals hook
  */
-export const ReactLocaleContext=createContext<LocaleContext|null>(null);
+export const ReactNi18Context=createContext<Ni18Context|null>(null);
 
 /**
- * Returns a LocaleContext or the provided default if no LocaleContext is found
+ * Returns a Ni18Context or the provided default if no Ni18Context is found
  */
-export function useLocale(localsDefault?:LocaleContext):LocaleContext
+export function useNi18(localsDefault?:Ni18Context):Ni18Context
 {
-    const ctx=useContext(ReactLocaleContext);
+    const ctx=useContext(ReactNi18Context);
     if(!ctx){
         if(localsDefault){
             return localsDefault;
         }
-        throw new Error('useLocals used outside of ReactLocaleContext');
+        throw new Error('useLocals used outside of ReactNi18Context');
     }
     return ctx;
 }
 
 /**
- * Creates a LocaleContext for use by a ReactLocaleContext provider
+ * Creates a Ni18Context for use by a ReactNi18Context provider
  */
-export function useCreateLocaleContext(config:Partial<I18nBuildConfig>):LocaleContext
+export function useCreateNi18Context(config:Partial<Ni18Config>):Ni18Context
 {
     const configRef=useRef(config);
     return useMemo(()=>{
-        return new LocaleContext((isServerSide && process.env.I18N_CONFIG)?
+        return new Ni18Context((isServerSide && process.env.I18N_CONFIG)?
             _getDefaultConfig():
             createLocaleConfig(configRef.current));
     },[]);
