@@ -1,0 +1,10 @@
+POST http://localhost:3000/api/dev-i18n
+Content-Type: application/json
+
+{
+    "language":"es",
+    "region":"MX",
+    "tag":"es-MX"
+}
+
+GET http://localhost:3000/api/dev-i18n

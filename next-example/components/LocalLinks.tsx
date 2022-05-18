@@ -1,10 +1,10 @@
 import { useRouter } from 'next/router';
 import React from 'react';
-import { useLocals } from '../lib/local';
+import { LocalsContext, useLocals } from '../lib/local';
 
-export function useLocalLinks()
+export function useLocalLinks(localsDefault?:LocalsContext)
 {
-    const locals=useLocals();
+    const locals=useLocals(localsDefault);
 
     const router=useRouter();
 

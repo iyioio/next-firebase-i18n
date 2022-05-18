@@ -1,10 +1,43 @@
+import * as fs from 'fs';
 import { createContext, useContext, useMemo, useRef } from "react";
 import i18nConfig from '../i18n-config.json';
 import { defaultCookiesLocalsSubDir, defaultDomain, defaultLocals, defaultLocalsSubDir, defaultNextOut, defaultOut, I18nBuildConfig } from "../_tmp";
 
-//const localDirReg=/^\/lr\/([^/])\//;
+const isDev=process.env.NODE_ENV==='development';
 
 const isServerSide=typeof window === 'undefined';
+
+const ssOverrideFile='.i18n-dev-override';
+
+export function getServerSideLocaleOverride():LanguageRegion|null
+{
+    try{
+        fs.accessSync(ssOverrideFile);
+
+        const str=fs.readFileSync(ssOverrideFile).toString();
+
+        if(!str){
+            return null;
+        }
+
+        return JSON.parse(str);
+
+    }catch{
+        return null;
+    }
+}
+
+export function setServerSideLocaleOverride(override:LanguageRegion|null):void
+{
+    try{
+        if(override){
+            fs.writeFileSync(ssOverrideFile,JSON.stringify(override));
+        }else{
+            fs.unlinkSync(ssOverrideFile);
+        }
+
+    }catch{}
+}
 
 export interface LanguageRegion
 {
@@ -31,14 +64,42 @@ export function getLanguageRegion(config?:Partial<I18nBuildConfig>):LanguageRegi
 
     let language:string='';
     let region:string='';
+
+    if(typeof document !== 'undefined'){
+        const cookies=document.cookie.split(';').map(c=>c.trim());
+        const cl=cookies.find(c=>c.startsWith('firebase-language-override='))?.split('=')[1]?.trim();
+        const cr=cookies.find(c=>c.startsWith('firebase-country-override='))?.split('=')[1]?.trim();
+        if(cl){
+            language=cl;
+        }
+        if(cr){
+            region=cr;
+        }
+    }
+
+    if(isServerSide && isDev){
+        const override=getServerSideLocaleOverride();
+        if(override){
+            return override;
+        }
+    }
+
     if(typeof window === 'undefined'){// server side
         const [el,er]=(process.env.I18N_LOCAL||'en-US').split('-');
-        language=el||'en';
-        region=er||'US';
+        if(!language){
+            language=el||'en';
+        }
+        if(!region){
+            region=er||'US';
+        }
     }else{
         let [nl,nr]=navigator.language.split('-');
-        language=nl;
-        region=nr;
+        if(!language){
+            language=nl;
+        }
+        if(!region){
+            region=nr;
+        }
         if(location.pathname.startsWith('/'+_config.localsSubDir+'/')){
             const e=location.pathname.indexOf('/',_config.localsSubDir.length+2);
             const [pl,pr]=(e===-1?
@@ -48,16 +109,6 @@ export function getLanguageRegion(config?:Partial<I18nBuildConfig>):LanguageRegi
             language=pl;
             if(pr){
                 region=pr;
-            }
-        }else{
-            const cookies=document.cookie.split(';').map(c=>c.trim());
-            const cl=cookies.find(c=>c.startsWith('firebase-language-override='))?.split('=')[1]?.trim();
-            const cr=cookies.find(c=>c.startsWith('firebase-country-override='))?.split('=')[1]?.trim();
-            if(cl){
-                language=cl;
-            }
-            if(cr){
-                region=cr;
             }
         }
     }
@@ -138,6 +189,13 @@ export class LocalsContext
         if(typeof lr === 'string'){
             lr=parseLanguageRegion(lr,this._current);
         }
+
+        const tag=`${lr.language||this.current.language}${lr.region?'-'+lr.region:''}`
+        const filledLr:LanguageRegion={
+            language:lr.language||this.current.language,
+            region:lr.region||this.current.region,
+            tag
+        }
         
         if(!lr.language && !lr.region){
             return;
@@ -147,6 +205,20 @@ export class LocalsContext
         }
         if(lr.region){
             document.cookie=`firebase-country-override=${lr.region}`;
+        }
+
+        document.cookie=`NEXT_LOCALE=${lr.language||this.current.language}${lr.region?'-'+lr.region:''}`
+
+        if(isDev){
+            try{
+                await fetch('/api/dev-i18n',{
+                    method:'POST',
+                    headers:{
+                        'Content-Type':'application/json'
+                    },
+                    body:JSON.stringify(filledLr)
+                })
+            }catch{}
         }
 
         window.location.reload();
@@ -169,10 +241,13 @@ export class LocalsContext
 
 export const ReactLocalsContext=createContext<LocalsContext|null>(null);
 
-export function useLocals():LocalsContext
+export function useLocals(localsDefault?:LocalsContext):LocalsContext
 {
     const ctx=useContext(ReactLocalsContext);
     if(!ctx){
+        if(localsDefault){
+            return localsDefault;
+        }
         throw new Error('useLocals used outside of ReactLocalsContext');
     }
     return ctx;

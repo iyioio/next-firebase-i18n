@@ -1,7 +1,6 @@
-import type { NextPage } from 'next';
+import type { GetStaticProps, NextPage } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
-import { useLocalLinks } from '../components/LocalLinks';
 import LocalPicker from '../components/LocalPicker';
 import { getLanguageRegion } from '../lib/local';
 import styles from '../styles/Home.module.css';
@@ -23,7 +22,7 @@ const exampleStrings:{[lng:string]:Strings}={
   }
 }
 
-export function getStaticProps()
+export const getStaticProps:GetStaticProps=()=>
 {
   const lr=getLanguageRegion();
   return {props:{strings:exampleStrings[lr.language] ?? exampleStrings.en}}
@@ -36,15 +35,12 @@ interface HomeProps
 
 const Home: NextPage<HomeProps> = ({strings}) => {
 
-  const localLinks=useLocalLinks();
-
   return (
     <div className={styles.container}>
       <Head>
         <title>{strings.header}</title>
         <meta name="description" content="NextJs and Firebase i18n example" />
         <link rel="icon" href="/favicon.ico" />
-        {localLinks}
       </Head>
 
       <main className={styles.main}>

@@ -100,4 +100,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 
+# i18n
 /out-i18n
+.i18n-dev-override
