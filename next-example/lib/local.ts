@@ -1,6 +1,5 @@
 import * as fs from 'fs';
 import { createContext, useContext, useMemo, useRef } from "react";
-import i18nConfig from '../i18n-config.json';
 import { defaultCookiesLocalsSubDir, defaultDomain, defaultLocals, defaultLocalsSubDir, defaultNextOut, defaultOut, I18nBuildConfig } from "../_tmp";
 
 const isDev=process.env.NODE_ENV==='development';
@@ -9,8 +8,14 @@ const isServerSide=typeof window === 'undefined';
 
 const ssOverrideFile='.i18n-dev-override';
 
+/**
+ * Returns server side locale overrides
+ */
 export function getServerSideLocaleOverride():LanguageRegion|null
 {
+    if(!isServerSide){
+        return null;
+    }
     try{
         fs.accessSync(ssOverrideFile);
 
@@ -27,8 +32,14 @@ export function getServerSideLocaleOverride():LanguageRegion|null
     }
 }
 
+/**
+ * Sets server side locale overrides
+ */
 export function setServerSideLocaleOverride(override:LanguageRegion|null):void
 {
+    if(!isServerSide){
+        return;
+    }
     try{
         if(override){
             fs.writeFileSync(ssOverrideFile,JSON.stringify(override));
@@ -39,6 +50,9 @@ export function setServerSideLocaleOverride(override:LanguageRegion|null):void
     }catch{}
 }
 
+/**
+ * Represents a language and region
+ */
 export interface LanguageRegion
 {
     language:string;
@@ -46,6 +60,9 @@ export interface LanguageRegion
     tag:string;
 }
 
+/**
+ * Parses a string into a LanguageRegion
+ */
 export function parseLanguageRegion(str:string,defaults?:LanguageRegion):LanguageRegion
 {
     let [language,region]=(str||'').split('-');
@@ -58,9 +75,12 @@ export function parseLanguageRegion(str:string,defaults?:LanguageRegion):Languag
     }
 }
 
+/**
+ * Returns a LanguageRegion based on the provided config
+ */
 export function getLanguageRegion(config?:Partial<I18nBuildConfig>):LanguageRegion
 {
-    const _config=createLocalsConfig(config);
+    const _config=createLocaleConfig(config);
 
     let language:string='';
     let region:string='';
@@ -139,12 +159,18 @@ function _getDefaultConfig():Readonly<I18nBuildConfig>
     return defaultConfig;
 }
 
+/**
+ * Returns a default I18nBuildConfig based on the current environment
+ */
 export function getDefaultConfig():I18nBuildConfig
 {
     return {..._getDefaultConfig()}
 }
 
-export function createLocalsConfig({
+/**
+ * Creates a fully defined I18nBuildConfig using defaults for properties not provided
+ */
+export function createLocaleConfig({
     locals=_getDefaultConfig().locals,
     out=_getDefaultConfig().out,
     nextOut=_getDefaultConfig().nextOut,
@@ -163,7 +189,10 @@ export function createLocalsConfig({
     }
 }
 
-export class LocalsContext
+/**
+ * Manages the current locale
+ */
+export class LocaleContext
 {
 
     public readonly supported:LanguageRegion[];
@@ -180,7 +209,7 @@ export class LocalsContext
 
         this.config=Object.freeze({...config})
         this._current=getLanguageRegion(this.config);
-        this.supported=i18nConfig.locals.map(s=>parseLanguageRegion(s));
+        this.supported=this.config.locals.map(s=>parseLanguageRegion(s));
     }
 
     public async setCurrentAsync(lr:Partial<LanguageRegion>|string)
@@ -239,26 +268,35 @@ export class LocalsContext
     }
 }
 
-export const ReactLocalsContext=createContext<LocalsContext|null>(null);
+/**
+ * Provides a LocaleContext for use by the useLocals hook
+ */
+export const ReactLocaleContext=createContext<LocaleContext|null>(null);
 
-export function useLocals(localsDefault?:LocalsContext):LocalsContext
+/**
+ * Returns a LocaleContext or the provided default if no LocaleContext is found
+ */
+export function useLocale(localsDefault?:LocaleContext):LocaleContext
 {
-    const ctx=useContext(ReactLocalsContext);
+    const ctx=useContext(ReactLocaleContext);
     if(!ctx){
         if(localsDefault){
             return localsDefault;
         }
-        throw new Error('useLocals used outside of ReactLocalsContext');
+        throw new Error('useLocals used outside of ReactLocaleContext');
     }
     return ctx;
 }
 
-export function useCreateLocals(config:Partial<I18nBuildConfig>):LocalsContext
+/**
+ * Creates a LocaleContext for use by a ReactLocaleContext provider
+ */
+export function useCreateLocaleContext(config:Partial<I18nBuildConfig>):LocaleContext
 {
     const configRef=useRef(config);
     return useMemo(()=>{
-        return new LocalsContext((isServerSide && process.env.I18N_CONFIG)?
+        return new LocaleContext((isServerSide && process.env.I18N_CONFIG)?
             _getDefaultConfig():
-            createLocalsConfig(configRef.current));
+            createLocaleConfig(configRef.current));
     },[]);
 }

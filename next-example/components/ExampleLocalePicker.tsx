@@ -1,11 +1,11 @@
 import React, { useCallback } from 'react';
-import { LanguageRegion, useLocals } from '../lib/local';
+import { LanguageRegion, useLocale } from '../lib/local';
 
 
 
-export default function LocalPicker(){
+export default function ExampleLocalePicker(){
 
-    const locals=useLocals();
+    const locals=useLocale();
 
     const setLocal=useCallback((local:LanguageRegion)=>{
         locals.setCurrentAsync(local);

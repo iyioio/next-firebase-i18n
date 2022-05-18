@@ -1,7 +1,7 @@
 import type { GetStaticProps, NextPage } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
-import LocalPicker from '../components/LocalPicker';
+import ExampleLocalePicker from '../components/ExampleLocalePicker';
 import { getLanguageRegion } from '../lib/local';
 import styles from '../styles/Home.module.css';
 
@@ -52,7 +52,7 @@ const Home: NextPage<HomeProps> = ({strings}) => {
           {strings.body}
         </p>
 
-        <LocalPicker />
+        <ExampleLocalePicker />
 
         <p><Link href={'/other'}>Other</Link></p>
       </main>
