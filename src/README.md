@@ -303,7 +303,7 @@ export interface Ni18CliArgs extends Partial<Ni18Config>
 }
 ```
 
-The below examples are equfilent, 1 uses property names and the other uses aliases
+The below examples are equivalent, 1 uses property names and the other uses aliases
 
 ``` sh
 
