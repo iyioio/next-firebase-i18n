@@ -105,7 +105,7 @@ const nextConfig = {
 
 ``` diff
 + # i18n
-+ /out-i18n
++ /out-ni18
 + .ni18-dev-override
 ```
 <br/>
@@ -122,7 +122,7 @@ const nextConfig = {
   "scripts": {
     "dev": "next dev",
 -    "build": "next build",
-+    "build": "next-build-i18",
++    "build": "ni18",
     "start": "next start",
     "lint": "next lint"
   },
@@ -188,6 +188,7 @@ export function LocalePicker(){
 
 }
 ```
+<br/>
 
 ### Using at build time
 The ni18 command can be used via npx or directly from package scripts
@@ -210,4 +211,106 @@ npx ni18 -c custom-config.json --domain example.com
         "build":"ni18"
     }
 }
+```
+
+<br/><br/>
+
+## Config files
+ni18 config files implement the Ni18Config interface.
+
+*(note. aliases are used by the cli. Config arguments can be passes by property name or alias )*
+``` ts
+export interface Ni18Config
+{
+    /**
+     * An array of language-region tags.
+     * @example ['en-US','en-MX','da-DK']
+     * @alias r
+     */
+    locals:string[];
+
+    /**
+     * The domain the build targets. This is required for alternate language links to work
+     * properly
+     * @alias d
+     */
+    domain:string;
+
+    /**
+     * The directory ni18 builds are written to.
+     * @default './out-ni18
+     * @alias o
+     */
+    out:string;
+
+    /**
+     * The directory that NextJS exports to
+     * @default ./out
+     * @alias n
+     */
+    nextOut:string;
+
+    /**
+     * The name of sub-directory where language specify builds are written to. The files written
+     * here are browse-able and are used by search engines to index.
+     * @alias l
+     */
+    localsSubDir:string;
+
+    /**
+     * The name of sub-directory where cookie based language specify builds are written to.
+     * The files written here are not intended to be directly browse-able. They are used by
+     * i18n url rewrites to support cookie based language switching.
+     * @alias m
+     */
+    cookiesLocalsSubDir:string;
+}
+```
+
+Example ni18 config file
+``` json
+{
+    "locals":["en-US","es-MX"],
+    "domain":"example.com",
+    "out":"./out-ni18",
+    "nextOut":"./out",
+    "localsSubDir":"lr",
+    "cookiesLocalsSubDir":"lrc",
+}
+```
+
+<br/>
+
+## Command line args
+ni18 command line args implement the Ni18CliArgs interface which extends the Ni18Config interface.
+Arguments can be passed either by property name preceded by 2 hyphens ( ---{propName} )
+or by alias preceded by a single hyphen ( -{alias})
+
+``` ts
+export interface Ni18CliArgs extends Partial<Ni18Config>
+{
+    /**
+     * Path of a ni18 config files
+     * @alias c
+     */
+    config?:string;
+
+    /**
+     * Source directory of the target next project
+     * @alias s
+     */
+    src?:string;
+}
+```
+
+The below examples are equfilent, 1 uses property names and the other uses aliases
+
+``` sh
+
+# using property names
+ni18 --domain example.com --localsSubDir other-languages --locals en-US es-MX
+
+# using aliases
+ni18 -d example.com -l other-languages -r en-US es-MX
+
 ```
