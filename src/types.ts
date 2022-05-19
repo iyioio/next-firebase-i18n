@@ -6,6 +6,7 @@ export const defaultOut='./out-ni18';
 export const defaultNextOut='./out'
 export const defaultLocalsSubDir='lr';
 export const defaultCookiesLocalsSubDir='lrc';
+export const defaultSwapOut=true;
 
 export const ssOverrideFile='.ni18-dev-override';
 
@@ -38,6 +39,14 @@ export interface Ni18Config
      * @alias n
      */
     nextOut:string;
+
+    /**
+     * If true build output will be moved to the nextOut location. This is helpful for integrating
+     * in to existing build systems.
+     * @default true
+     * @alias w
+     */
+    swapOut:boolean;
 
     /**
      * The name of sub-directory where language specify builds are written to. The files written

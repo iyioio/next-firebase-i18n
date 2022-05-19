@@ -251,6 +251,14 @@ export interface Ni18Config
     nextOut:string;
 
     /**
+     * If true build output will be moved to the nextOut location. This is helpful for integrating
+     * in to existing build systems.
+     * @default true
+     * @alias w
+     */
+    swapOut:boolean;
+
+    /**
      * The name of sub-directory where language specify builds are written to. The files written
      * here are browse-able and are used by search engines to index.
      * @alias l

@@ -2,7 +2,7 @@ import commandLineArgs from 'command-line-args';
 import * as fs from 'fs';
 import path from 'path';
 import shell from 'shelljs';
-import { defaultConfigPath, defaultCookiesLocalsSubDir, defaultDomain, defaultLocalsSubDir, defaultNextOut, defaultOut, Ni18CliArgs, Ni18Config } from '../types';
+import { defaultConfigPath, defaultCookiesLocalsSubDir, defaultDomain, defaultLocalsSubDir, defaultNextOut, defaultOut, defaultSwapOut, Ni18CliArgs, Ni18Config } from '../types';
 import { buildI18n } from './next-build-i18n-lib';
 
 shell.set('-e');
@@ -15,7 +15,8 @@ const args:Ni18CliArgs=commandLineArgs([
     {name:'nextOut',type:String,alias:'n',defaultValue:defaultNextOut},
     {name:'out',type:String,alias:'o',defaultValue:defaultOut},
     {name:'localsSubDir',type:String,alias:'l',defaultValue:defaultLocalsSubDir},
-    {name:'cookiesLocalsSubDir',type:String,alias:'m',defaultValue:defaultCookiesLocalsSubDir}
+    {name:'cookiesLocalsSubDir',type:String,alias:'m',defaultValue:defaultCookiesLocalsSubDir},
+    {name:'swapOut',type:Boolean,alias:'w',defaultValue:defaultSwapOut}
 ]) as any;
 
 if(args.src){
@@ -65,4 +66,5 @@ buildI18n({
     nextOut:requireProp(args,'nextOut'),
     localsSubDir:requireProp(args,'localsSubDir'),
     cookiesLocalsSubDir:requireProp(args,'cookiesLocalsSubDir'),
+    swapOut:requireProp(args,'swapOut'),
 });

@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import { createContext, useContext, useMemo, useRef } from "react";
-import { defaultCookiesLocalsSubDir, defaultDomain, defaultLocals, defaultLocalsSubDir, defaultNextOut, defaultOut, LanguageRegion, Ni18Config, ssOverrideFile } from "./types";
+import { defaultCookiesLocalsSubDir, defaultDomain, defaultLocals, defaultLocalsSubDir, defaultNextOut, defaultOut, defaultSwapOut, LanguageRegion, Ni18Config, ssOverrideFile } from "./types";
 
 const isDev=process.env.NODE_ENV==='development';
 
@@ -142,6 +142,7 @@ function _getDefaultConfig():Readonly<Ni18Config>
         localsSubDir:defaultLocalsSubDir,
         cookiesLocalsSubDir:defaultCookiesLocalsSubDir,
         domain:isServerSide?defaultDomain:location.host,
+        swapOut:defaultSwapOut,
     }
 
     return defaultConfig;
@@ -165,6 +166,7 @@ export function createLocaleConfig({
     localsSubDir=_getDefaultConfig().localsSubDir,
     cookiesLocalsSubDir=_getDefaultConfig().cookiesLocalsSubDir,
     domain=_getDefaultConfig().domain,
+    swapOut=_getDefaultConfig().swapOut,
 }:Partial<Ni18Config>={}):Ni18Config{
 
     return {
@@ -174,6 +176,7 @@ export function createLocaleConfig({
         localsSubDir,
         domain,
         cookiesLocalsSubDir,
+        swapOut,
     }
 }
 

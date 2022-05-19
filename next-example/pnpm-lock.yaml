@@ -1,7 +1,7 @@
 lockfileVersion: 5.4
 
 specifiers:
-  '@iyio/ni18': 0.0.7
+  '@iyio/ni18': 0.0.8
   '@types/node': 17.0.33
   '@types/react': 18.0.9
   '@types/react-dom': 18.0.4
@@ -14,7 +14,7 @@ specifiers:
   typescript: 4.6.4
 
 dependencies:
-  '@iyio/ni18': 0.0.7_next@12.1.6+react@18.1.0
+  '@iyio/ni18': 0.0.8_next@12.1.6+react@18.1.0
   next: 12.1.6_ef5jwxihqo6n7gxfmzogljlgcm
   react: 18.1.0
   react-dom: 18.1.0_react@18.1.0
@@ -77,8 +77,8 @@ packages:
     resolution: {integrity: sha512-ZnQMnLV4e7hDlUvw8H+U8ASL02SS2Gn6+9Ac3wGGLIe7+je2AeAOxPY+izIPJDfFDb7eDjev0Us8MO1iFRN8hA==}
     dev: true
 
-  /@iyio/ni18/0.0.7_next@12.1.6+react@18.1.0:
-    resolution: {integrity: sha512-sVKa5iLu8cSgxiGFXBzVo1Pa/RjBFqZ4SmLPJ23XpJI9uJwPKn0Ftm1UVGKmw5yrHnBPmHSymP6uTOq4JXgInA==}
+  /@iyio/ni18/0.0.8_next@12.1.6+react@18.1.0:
+    resolution: {integrity: sha512-iWYXtdibIP/YSjBB5rwcySAeuKpnadsSVsslS3CEHaYNmYym/WgBfJvHPJhLyioeswpAXJ1nnsLWegbOjAq80w==}
     hasBin: true
     peerDependencies:
       next: '*'

@@ -5,8 +5,6 @@ import { Ni18Config } from '../types';
 const subReplace=   '___RE-PLACE__B-A-S-E___';
 const subReplaceReg=/___RE-PLACE__B-A-S-E___/g;
 
-export type BuildI18nResult={[tag:string]:string}
-
 export interface BuildInfo{
     basePath:boolean;
     out:string;
@@ -32,7 +30,6 @@ export function buildI18n(config:Ni18Config):BuildInfo[]
     shell.mkdir('-p',localsDir);
     shell.mkdir('-p',localsCookiesDir);
 
-    const result:BuildI18nResult={};
     const builds:{basePath:boolean,out:string,tag:string,lng:string}[]=[];
 
     function build(basePath:boolean,tag:string)
@@ -108,6 +105,14 @@ export function buildI18n(config:Ni18Config):BuildInfo[]
     // copy default language to root
     console.info(`Coping default tag to root ${builds[0].out} -> ${config.out}`);
     shell.cp('-r',builds[0].out+'/*',config.out);
+
+    if(config.swapOut){
+        console.info(`swapping output ${config.out} -> ${config.nextOut}`);
+        shell.mv(config.out,config.nextOut);
+        for(const b of builds){
+            b.out=config.nextOut+b.out.substring(config.out.length);
+        }
+    }
 
 
     console.info(chalk.green('Build success'));
