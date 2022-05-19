@@ -231,7 +231,7 @@ export class Ni18Context
 
         if(isDev){
             try{
-                await fetch('/api/dev-i18n',{
+                await fetch('/api/dev-ni18',{
                     method:'POST',
                     headers:{
                         'Content-Type':'application/json'

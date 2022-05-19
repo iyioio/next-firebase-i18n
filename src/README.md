@@ -85,7 +85,7 @@ import '../styles/globals.css'
 ./next.config.js
 
 ``` diff
-+const { applyNi18nConfig } = require('@iyio/ni18')
++const { applyNi18Config } = require('@iyio/ni18')
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -93,7 +93,7 @@ const nextConfig = {
 }
 
 -module.exports = nextConfig;
-+module.exports = applyNi18nConfig(nextConfig);
++module.exports = applyNi18Config(nextConfig);
 
 ```
 <br/>
@@ -131,12 +131,12 @@ const nextConfig = {
 ```
 <br/>
 
-### 7. ( optional ) Add dev-i18n api route to support switch languages in development mode
+### 7. ( optional ) Add dev-ni18 api route to support switch languages in development mode
 
-./pages/api/dev-i18n.(js|ts)
+./pages/api/dev-ni18.(js|ts)
 
 ``` ts
-import { devI18nHandler as handler } from "@iyio/ni18";
+import { devNi18Handler as handler } from "@iyio/ni18";
 export default handler;
 ```
 

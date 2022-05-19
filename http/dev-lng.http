@@ -1,4 +1,4 @@
-POST http://localhost:3000/api/dev-i18n
+POST http://localhost:3000/api/dev-ni18
 Content-Type: application/json
 
 {
@@ -7,4 +7,4 @@ Content-Type: application/json
     "tag":"es-MX"
 }
 
-GET http://localhost:3000/api/dev-i18n
+GET http://localhost:3000/api/dev-ni18

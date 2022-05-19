@@ -1,6 +1,6 @@
 {
   "name": "@iyio/ni18",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "Add internationalization support NextJS SSG ( next export )",
   "main": "dist/ni18-index.js",
   "types": "dist/ni18-index.d.ts",
