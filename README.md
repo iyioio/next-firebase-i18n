@@ -61,7 +61,7 @@ import '../styles/globals.css'
 +import { initNi18, useNi18Links } from '@iyio/ni18';
 +import i18nConfig from '../ni18-config.json';
 
-initNi18(ni18Config)
++initNi18(ni18Config)
  
 function MyApp({ Component, pageProps }: AppProps) {
 
