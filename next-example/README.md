@@ -14,5 +14,5 @@ npm run build
 ## Test with firebase hosting
 This example project is setup to start the firebase hosting emulator and serve the build out
 ``` sh
-npm run emulators
+npm run em
 ```

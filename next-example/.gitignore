@@ -103,3 +103,5 @@ yarn-error.log*
 # i18n
 /out-ni18
 .ni18-dev-override
+
+.pkhub

@@ -15,10 +15,10 @@ export interface BuildInfo{
 export function buildI18n(config:Ni18Config):BuildInfo[]
 {
 
-    const localsDir=config.out+'/'+config.localsSubDir;
-    const localsCookiesDir=config.out+'/'+config.cookiesLocalsSubDir;
+    const localesDir=config.out+'/'+config.localesSubDir;
+    const localesCookiesDir=config.out+'/'+config.cookiesLocalesSubDir;
     console.info('NextBuildI18nConfig')
-    console.info({config,localsDir});
+    console.info({config,localesDir});
 
     shell.env.I18N_CONFIG=JSON.stringify(config);
 
@@ -27,8 +27,8 @@ export function buildI18n(config:Ni18Config):BuildInfo[]
     shell.rm('-rf',config.nextOut);
 
 
-    shell.mkdir('-p',localsDir);
-    shell.mkdir('-p',localsCookiesDir);
+    shell.mkdir('-p',localesDir);
+    shell.mkdir('-p',localesCookiesDir);
 
     const builds:{basePath:boolean,out:string,tag:string,lng:string}[]=[];
 
@@ -38,12 +38,13 @@ export function buildI18n(config:Ni18Config):BuildInfo[]
             throw new Error('config.nextOut required');
         }
 
-        const out=(basePath?localsDir:localsCookiesDir)+'/'+tag;
+        const out=(basePath?localesDir:localesCookiesDir)+'/'+tag;
 
         console.info(chalk.cyan('Building '+tag+' -> '+out));
 
-        shell.env.I18N_LOCAL=tag;
-        shell.env.I18N_BASE_PATH=basePath?`/${config.localsSubDir}/${subReplace}`:'';
+        shell.env.NI18_LOCALE=tag;
+        shell.env.NEXT_PUBLIC_NI18_LOCALE=tag;
+        shell.env.NI18_BASE_PATH=basePath?`/${config.localesSubDir}/${subReplace}`:'';
 
         shell.exec('npx next build');
         shell.exec('npx next export');
@@ -60,10 +61,10 @@ export function buildI18n(config:Ni18Config):BuildInfo[]
         return out;
     }
 
-    console.info(chalk.magenta(`Starting build for ${config.locals.length}(s) locals`))
-    console.info(chalk.magenta(`A total of ${config.locals.length*2}(s) builds will be created`))
+    console.info(chalk.magenta(`Starting build for ${config.locales.length}(s) locales`))
+    console.info(chalk.magenta(`A total of ${config.locales.length*2}(s) builds will be created`))
 
-    for(const lngRegion of config.locals){
+    for(const lngRegion of config.locales){
         build(false,lngRegion);
         build(true,lngRegion);
     }
@@ -75,7 +76,7 @@ export function buildI18n(config:Ni18Config):BuildInfo[]
         const lngTag=(b.basePath?'b-':'r-')+b.lng;
         if(!lngs.includes(lngTag)){
             lngs.push(lngTag);
-            const out=(b.basePath?localsDir:localsCookiesDir)+'/'+b.lng;
+            const out=(b.basePath?localesDir:localesCookiesDir)+'/'+b.lng;
             console.info(`Copying ${b.out} -> ${out}`);
             shell.cp('-r',b.out,out);
             builds.push({

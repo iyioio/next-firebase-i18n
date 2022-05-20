@@ -4,7 +4,7 @@ import commandLineArgs from 'command-line-args';
 import * as fs from 'fs';
 import path from 'path';
 import shell from 'shelljs';
-import { defaultConfigPath, defaultCookiesLocalsSubDir, defaultDomain, defaultLocalsSubDir, defaultNextOut, defaultOut, defaultSwapOut, Ni18CliArgs, Ni18Config } from '../types';
+import { defaultConfigPath, defaultCookiesLocalesSubDir, defaultDomain, defaultLocalesSubDir, defaultNextOut, defaultOut, defaultSwapOut, Ni18CliArgs, Ni18Config } from '../types';
 import { buildI18n } from './next-build-i18n-lib';
 
 shell.set('-e');
@@ -12,12 +12,12 @@ shell.set('-e');
 const args:Ni18CliArgs=commandLineArgs([
     {name:'config',type:String,alias:'c'},
     {name:'src',type:String,alias:'s'},
-    {name:'locals',type:String,alias:'r',multiple:true,defaultOption:true},
+    {name:'locales',type:String,alias:'r',multiple:true,defaultOption:true},
     {name:'domain',type:String,alias:'d'},
     {name:'nextOut',type:String,alias:'n',defaultValue:defaultNextOut},
     {name:'out',type:String,alias:'o',defaultValue:defaultOut},
-    {name:'localsSubDir',type:String,alias:'l',defaultValue:defaultLocalsSubDir},
-    {name:'cookiesLocalsSubDir',type:String,alias:'m',defaultValue:defaultCookiesLocalsSubDir},
+    {name:'localesSubDir',type:String,alias:'l',defaultValue:defaultLocalesSubDir},
+    {name:'cookiesLocalesSubDir',type:String,alias:'m',defaultValue:defaultCookiesLocalesSubDir},
     {name:'swapOut',type:Boolean,alias:'w',defaultValue:defaultSwapOut}
 ]) as any;
 
@@ -62,11 +62,11 @@ function requireProp<T extends keyof Ni18Config>(
 }
 
 buildI18n({
-    locals:requireProp(args,'locals'),
+    locales:requireProp(args,'locales'),
     domain:requireProp(args,'domain'),
     out:requireProp(args,'out'),
     nextOut:requireProp(args,'nextOut'),
-    localsSubDir:requireProp(args,'localsSubDir'),
-    cookiesLocalsSubDir:requireProp(args,'cookiesLocalsSubDir'),
+    localesSubDir:requireProp(args,'localesSubDir'),
+    cookiesLocalesSubDir:requireProp(args,'cookiesLocalesSubDir'),
     swapOut:requireProp(args,'swapOut'),
 });

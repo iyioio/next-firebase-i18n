@@ -1,3 +1,4 @@
 {
-    "locals":["en-US","es-MX"]
+    "locales":["en-US","es-MX"],
+    "domain":"example.com"
 }

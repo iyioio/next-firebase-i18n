@@ -1,6 +1,6 @@
 # @iyio/ni18
 ni18 adds internationalization support to NextJS projects using SSG ( next export ) without the need
-to modify the routing.
+to modify routing.
 
 <br/><br/>
 
@@ -41,10 +41,13 @@ yarn add @iyio/ni18
 
 ``` json
 {
-    "locals":["en-US","es-MX"]
+    "locales":["en-US","es-MX"],
+    "domain":"example.com"
 }
 ```
+*(note. Domain is need to support property alternate language page links and is not required during development)*
 <br/>
+
 
 
 ### 2. Add ReactNi18Context.Provider to the App component
@@ -54,25 +57,24 @@ yarn add @iyio/ni18
 ``` diff
 import type { AppProps } from 'next/app'
 import '../styles/globals.css'
-+import { ReactNi18Context, useCreateNi18Context, useNi18Links } from '@iyio/ni18';
++import { initNi18, useNi18Links } from '@iyio/ni18';
 +import Head from 'next/head';
 +import i18nConfig from '../ni18-config.json';
+
+initNi18(ni18Config)
  
- function MyApp({ Component, pageProps }: AppProps) {
-+
-+  const locals=useCreateNi18Context(i18nConfig)
-+  const localeLinks=useNi18Links(locals);
-+
-+  return (
-+    <ReactNi18Context.Provider value={locals}>
-+      <Head>
-+        {/* links to page in different languages */}
-+        {/* <link rel="alternate" hreflang="es-mx" href="https://example.com/lr/es-MX/other"> */}
+function MyApp({ Component, pageProps }: AppProps) {
+
++  const localeLinks=useNi18Links(locales);
+
+  return (
++    <>
++      <Head>other"> */}
 +        {localeLinks}
 +      </Head>
       <Component {...pageProps} />
-+    </ReactNi18Context.Provider>
-+  )
++    </>
+  )
  }
  
  export default MyApp
@@ -80,20 +82,22 @@ import '../styles/globals.css'
 <br/>
 
 
-### 3. Apply i18n config to next.config.js
+### 3. Apply ni18 config to next.config.js using the withNi18 function
 
 ./next.config.js
 
 ``` diff
-+const { applyNi18Config } = require('@iyio/ni18')
++const { withNi18 } = require('@iyio/ni18')
++const ni18Config = require('./ni18-config.json')
 
 /** @type {import('next').NextConfig} */
-const nextConfig = {
+-const nextConfig = {
++const nextConfig = withNi18(ni18Config,{
   reactStrictMode: true,
-}
+-}
++})
 
--module.exports = nextConfig;
-+module.exports = applyNi18Config(nextConfig);
+module.exports = nextConfig;
 
 ```
 <br/>
@@ -142,23 +146,35 @@ export default handler;
 
 <br/><br/>
 
-## Usage
-There are 3 distinct ares where ni18 can be used, in getStaticProps, in components and at build time.
+## Usage in code
+The primary functions used while coding are the locale and setLocaleAsync functions, they
+get and set the current locale.
+
+``` ts
+/**
+ * Returns the current language and region (i.e. en-US)
+ * locale() is shorthand for getNi18Locale().tag
+ */
+function locale():string;
+
+/**
+ * Sets the current locale. Calling this function server side will not effect clients
+ */
+async function setLocaleAsync(locale:string|Ni18Locale|null);
+
+```
 
 <br/>
 
 ### Using with getStaticProps
-getStaticProps functions can use the getLanguageRegion to reference the current locale
 
 ``` ts
-// Current language is set to es-MX
+
+import { locale } from '@iyio/ni18';
+
 export const getStaticProps:GetStaticProps=async ()=>
 {
-  const lr=getLanguageRegion();
-  // lr.language === 'es'
-  // lr.region === 'MX'
-  // lr.tag === 'es-MX'
-  const response=await fetch(`https://awesome.io/api/cool-stuff?lng=${lr.tag}`);
+  const response=await fetch(`https://awesome.io/api/cool-stuff?locale=${locale()}`);
   const content=await response.json();
   return {props:{awesomeContent:content}}
 }
@@ -167,21 +183,19 @@ export const getStaticProps:GetStaticProps=async ()=>
 <br/>
 
 ### Using within Components
-Components can use the useNi18 hook to access the Ni18Context. Ni18Context.current is a reference
-to a LanguageRegion object, the same as returned by getLanguageRegion. Ni18Context also allows
-you to set the current locale
 
 ``` tsx
-export function LocalePicker(){
 
-    const locals=useNi18();
+import { locale, setLocaleAsync } from '@iyio/ni18';
+
+export function LocalePicker(){
 
     return (
         <div>
-            <h2>Current locale is {locals.current.tag}</h2>
+            <h2>Current locale is {locale()}</h2>
             <p>
-                <button onClick={()=>locals.setCurrentAsync('en-US')}>en-US</button>
-                <button onClick={()=>locals.setCurrentAsync('es-MX')}>es-MX</button>
+                <button onClick={()=>setLocaleAsync('en-US')}>en-US</button>
+                <button onClick={()=>setLocaleAsync('es-MX')}>es-MX</button>
             </p>
         </div>
     )
@@ -190,7 +204,7 @@ export function LocalePicker(){
 ```
 <br/>
 
-### Using at build time
+## Usage at build time
 The ni18 command can be used via npx or directly from package scripts
 
 ``` sh
@@ -227,7 +241,7 @@ export interface Ni18Config
      * @example ['en-US','en-MX','da-DK']
      * @alias r
      */
-    locals:string[];
+    locales:string[];
 
     /**
      * The domain the build targets. This is required for alternate language links to work
@@ -263,7 +277,7 @@ export interface Ni18Config
      * here are browse-able and are used by search engines to index.
      * @alias l
      */
-    localsSubDir:string;
+    localesSubDir:string;
 
     /**
      * The name of sub-directory where cookie based language specify builds are written to.
@@ -271,19 +285,19 @@ export interface Ni18Config
      * i18n url rewrites to support cookie based language switching.
      * @alias m
      */
-    cookiesLocalsSubDir:string;
+    cookiesLocalesSubDir:string;
 }
 ```
 
 Example ni18 config file
 ``` json
 {
-    "locals":["en-US","es-MX"],
+    "locales":["en-US","es-MX"],
     "domain":"example.com",
     "out":"./out-ni18",
     "nextOut":"./out",
-    "localsSubDir":"lr",
-    "cookiesLocalsSubDir":"lrc",
+    "localesSubDir":"lr",
+    "cookiesLocalesSubDir":"lrc",
 }
 ```
 
@@ -316,7 +330,7 @@ The below examples are equivalent, the first example uses property names and the
 ``` sh
 
 # using property names
-ni18 --domain example.com --localsSubDir other-languages --locals en-US es-MX
+ni18 --domain example.com --localesSubDir other-languages --locales en-US es-MX
 
 # using aliases
 ni18 -d example.com -l other-languages -r en-US es-MX

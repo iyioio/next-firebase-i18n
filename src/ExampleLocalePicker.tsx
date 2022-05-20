@@ -1,21 +1,15 @@
-import React, { useCallback } from 'react';
-import { useNi18 } from './lib';
-import { LanguageRegion } from './types';
-
+import React from 'react';
+import { getNi18Config, setLocaleAsync } from './lib';
 
 
 export function ExampleLocalePicker(){
 
-    const locals=useNi18();
-
-    const setLocal=useCallback((local:LanguageRegion)=>{
-        locals.setCurrentAsync(local);
-    },[locals]);
+    const config=getNi18Config();
 
     return (
         <div>
-            {locals.supported.map(l=>(
-                <button onClick={()=>setLocal(l)} key={l.tag}>{l.tag}</button>
+            {config.locales.map(l=>(
+                <button onClick={()=>setLocaleAsync(l)} key={l}>{l}</button>
             ))}
         </div>
     )

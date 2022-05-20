@@ -1,30 +1,14 @@
-import { ExampleLocalePicker, getLanguageRegion } from '@iyio/ni18';
-import type { NextPage } from 'next';
+import { ExampleLocalePicker, locale } from '@iyio/ni18';
+import type { GetStaticProps, NextPage } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
+import { getStrings, Strings } from '../strings';
 import styles from '../styles/Home.module.css';
 
-interface Strings
-{
-  header:string;
-  body:string;
-}
 
-const exampleStrings:{[lng:string]:Strings}={
-  en:{
-    header:'The OTHER weather tody',
-    body:'It\'s hot and sunny'
-  },
-  es:{
-    header:'El OTHER tiempo hoy',
-    body:'Hace calor y está soleado'
-  }
-}
-
-export function getStaticProps()
+export const getStaticProps:GetStaticProps=()=>
 {
-  const lr=getLanguageRegion();
-  return {props:{strings:exampleStrings[lr.language] ?? exampleStrings.en}}
+  return {props:{strings:getStrings('other',locale())}}
 }
 
 interface OtherProps
@@ -46,6 +30,8 @@ const Other: NextPage<OtherProps> = ({strings}) => {
         <h1 className={styles.title}>
           {strings.header}
         </h1>
+
+        <p>locale = {locale()}</p>
 
         <p className={styles.description}>
           {strings.body}

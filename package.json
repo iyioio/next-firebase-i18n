@@ -1,0 +1,17 @@
+{
+  "scripts": {
+    "pkhub":"pkhub"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iyioio/ni18.git"
+  },
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/iyioio/ni18/issues"
+  },
+  "homepage": "https://github.com/iyioio/ni18#readme",
+  "dependencies": {
+    "@iyio/package-hub": "^1.1.0"
+  }
+}

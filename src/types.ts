@@ -1,11 +1,11 @@
 export const defaultConfigPath='./ni18-config.json';
 
-export const defaultLocals=['en-US'];
+export const defaultLocales=['en-US'];
 export const defaultDomain='localhost:5000';
 export const defaultOut='./out-ni18';
 export const defaultNextOut='./out'
-export const defaultLocalsSubDir='lr';
-export const defaultCookiesLocalsSubDir='lrc';
+export const defaultLocalesSubDir='lr';
+export const defaultCookiesLocalesSubDir='lrc';
 export const defaultSwapOut=true;
 
 export const ssOverrideFile='.ni18-dev-override';
@@ -13,11 +13,11 @@ export const ssOverrideFile='.ni18-dev-override';
 export interface Ni18Config
 {
     /**
-     * An array of language-region tags.
+     * An array of supported locales.
      * @example ['en-US','en-MX','da-DK']
      * @alias r
      */
-    locals:string[];
+    locales:string[];
 
     /**
      * The domain the build targets. This is required for alternate language links to work
@@ -53,7 +53,7 @@ export interface Ni18Config
      * here are browse-able and are used by search engines to index.
      * @alias l
      */
-    localsSubDir:string;
+    localesSubDir:string;
 
     /**
      * The name of sub-directory where cookie based language specify builds are written to.
@@ -61,7 +61,7 @@ export interface Ni18Config
      * i18n url rewrites to support cookie based language switching.
      * @alias m
      */
-    cookiesLocalsSubDir:string;
+    cookiesLocalesSubDir:string;
 }
 
 export interface Ni18CliArgs extends Partial<Ni18Config>
@@ -82,7 +82,7 @@ export interface Ni18CliArgs extends Partial<Ni18Config>
 /**
  * Represents a language and region
  */
-export interface LanguageRegion
+export interface Ni18Locale
 {
     /**
      * 2 letter language code - en

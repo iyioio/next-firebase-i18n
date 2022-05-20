@@ -1,10 +1,12 @@
 import { NextConfig } from "next";
 
-export function applyNi18Config(config:NextConfig):NextConfig
+export function withNi18(config:NextConfig):NextConfig
 {
-    if(!config.basePath && process.env.I18N_BASE_PATH){
-        config.basePath=process.env.I18N_BASE_PATH;
+
+    if(!config.basePath && process.env.NI18_BASE_PATH){
+        config.basePath=process.env.NI18_BASE_PATH;
     }
+
     const defaultWebPack=config.webpack;
     config.webpack=(config,context)=>{
         

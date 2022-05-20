@@ -1,19 +1,125 @@
 import * as fs from 'fs';
-import { createContext, useContext, useMemo, useRef } from "react";
-import { defaultCookiesLocalsSubDir, defaultDomain, defaultLocals, defaultLocalsSubDir, defaultNextOut, defaultOut, defaultSwapOut, LanguageRegion, Ni18Config, ssOverrideFile } from "./types";
+import { defaultConfigPath, defaultCookiesLocalesSubDir, defaultDomain, defaultLocales, defaultLocalesSubDir, defaultNextOut, defaultOut, defaultSwapOut, Ni18Config, Ni18Locale, ssOverrideFile } from "./types";
 
 const isDev=process.env.NODE_ENV==='development';
 
 const isServerSide=typeof window === 'undefined';
 
+let _config:Readonly<Ni18Config>|null=null;
+/**
+ * Returns the current Ni18Config based on the current environment
+ */
+export const getNi18Config=():Readonly<Ni18Config>=>{
+    if(_config){
+        return _config;
+    }
+    let c:Ni18Config;
+    if(isServerSide){
+        if(process.env.I18N_CONFIG){
+            c=JSON.parse(process.env.I18N_CONFIG);
+        }else{
+            try{
+                fs.accessSync(defaultConfigPath);
+                c=JSON.parse(fs.readFileSync(defaultConfigPath).toString());
+            }catch{
+                c=getDefaultConfig();
+            }
+
+        }
+    }else{
+        c=getDefaultConfig();
+    }
+     _config=Object.freeze(c);
+    Object.freeze(_config.locales);
+    return _config;
+}
+
+export function initNi18(config:Partial<Ni18Config>):Readonly<Ni18Config>
+{
+    _config=Object.freeze(createConfigWithOptions(config));
+    Object.freeze(_config.locales);
+    return _config;
+}
+
+
+/**
+ * Returns the current language and region tag i.e. en-US.
+ * This function is shorthand for getNi18Locale().tag
+ */
+export const locale=()=>{
+    return getNi18Locale().tag;
+}
+
+/**
+ * Sets the current locale. Calling this function server side will not effect clients
+ */
+export async function setLocaleAsync(locale:string|Ni18Locale|null){
+    if(isServerSide){
+        if(isDev){
+            setServerSideLocaleOverride(locale?parseNi18Locale(locale):null)
+        }
+    }else{
+        await setClientSideLanguageAsync(locale)
+    }
+}
+
+async function setClientSideLanguageAsync(locale:Ni18Locale|string|null)
+{
+
+    if(!locale){
+        document.cookie=`firebase-language-override=en;expires=Thu, 01 Jan 1970 00:00:01 GMT`;
+        document.cookie=`firebase-country-override=US;expires=Thu, 01 Jan 1970 00:00:01 GMT`;
+
+        //document.cookie=`NEXT_LOCALE=${locale.language||this.current.language}${locale.region?'-'+locale.region:''}`
+
+        if(isDev){
+            try{
+                await fetch('/api/dev-ni18',{
+                    method:'POST',
+                    headers:{
+                        'Content-Type':'application/json'
+                    },
+                    body:JSON.stringify(locale)
+                })
+            }catch{}
+        }
+    }else{
+
+        if(typeof locale === 'string'){
+            locale=parseNi18Locale(locale);
+        }
+        
+        document.cookie=`firebase-language-override=${locale.language}`;
+        document.cookie=`firebase-country-override=${locale.region}`;
+
+        //document.cookie=`NEXT_LOCALE=${locale.language||this.current.language}${locale.region?'-'+locale.region:''}`
+
+        if(isDev){
+            try{
+                await fetch('/api/dev-ni18',{
+                    method:'POST',
+                    headers:{
+                        'Content-Type':'application/json'
+                    },
+                    body:JSON.stringify(locale)
+                })
+            }catch{}
+        }
+    }
+
+    window.location.reload();
+
+    return await new Promise<void>(()=>{
+        // never resolve. The reloading of the page will re-render everything
+    });
+}
+
+
 /**
  * Returns server side locale overrides
  */
-export function getServerSideLocaleOverride():LanguageRegion|null
+function getServerSideLocaleOverride():Ni18Locale|null
 {
-    if(!isServerSide){
-        return null;
-    }
     try{
         fs.accessSync(ssOverrideFile);
 
@@ -33,11 +139,8 @@ export function getServerSideLocaleOverride():LanguageRegion|null
 /**
  * Sets server side locale overrides
  */
-export function setServerSideLocaleOverride(override:LanguageRegion|null):void
+function setServerSideLocaleOverride(override:Ni18Locale|null):void
 {
-    if(!isServerSide){
-        return;
-    }
     try{
         if(override){
             fs.writeFileSync(ssOverrideFile,JSON.stringify(override));
@@ -49,11 +152,29 @@ export function setServerSideLocaleOverride(override:LanguageRegion|null):void
 }
 
 /**
- * Parses a string into a LanguageRegion
+ * Returns a link to a language specific path. 
  */
-export function parseLanguageRegion(str:string,defaults?:LanguageRegion):LanguageRegion
+export function getLocaleLink(path:string,locale:string)
 {
-    let [language,region]=(str||'').split('-');
+
+    if(path.startsWith('/')){
+        path=path.substring(1);
+    }
+
+    const config=getNi18Config();
+
+    return `https://${config.domain}/${config.localesSubDir}/${locale}/${path}`;
+}
+
+/**
+ * Parses a string into a Ni18Locale
+ */
+export function parseNi18Locale(locale?:string|Ni18Locale|null,defaults?:Ni18Locale):Ni18Locale
+{
+    if(locale && typeof(locale)==='object'){
+        return locale;
+    }
+    let [language,region]=(locale||'').split('-');
     language=language?.split(',')[0].toLowerCase()||defaults?.language||'en',
     region=region?.split(',')[0].toUpperCase()||defaults?.region||'US'
     return {
@@ -63,15 +184,22 @@ export function parseLanguageRegion(str:string,defaults?:LanguageRegion):Languag
     }
 }
 
+
+
 /**
  * Returns a LanguageRegion based on the provided config
  */
-export function getLanguageRegion(config?:Partial<Ni18Config>):LanguageRegion
+export function getNi18Locale():Ni18Locale
 {
-    const _config=createLocaleConfig(config);
 
     let language:string='';
     let region:string='';
+
+    if(!isServerSide && process.env.NEXT_PUBLIC_NI18_LOCALE){
+        const parts=process.env.NEXT_PUBLIC_NI18_LOCALE.split('-');
+        language=parts[0];
+        region=parts[1]||'';
+    }
 
     if(typeof document !== 'undefined'){
         const cookies=document.cookie.split(';').map(c=>c.trim());
@@ -92,8 +220,8 @@ export function getLanguageRegion(config?:Partial<Ni18Config>):LanguageRegion
         }
     }
 
-    if(typeof window === 'undefined'){// server side
-        const [el,er]=(process.env.I18N_LOCAL||'en-US').split('-');
+    if(isServerSide){
+        const [el,er]=(process.env.NI18_LOCALE||'en-US').split('-');
         if(!language){
             language=el||'en';
         }
@@ -108,11 +236,12 @@ export function getLanguageRegion(config?:Partial<Ni18Config>):LanguageRegion
         if(!region){
             region=nr;
         }
-        if(location.pathname.startsWith('/'+_config.localsSubDir+'/')){
-            const e=location.pathname.indexOf('/',_config.localsSubDir.length+2);
+        const config=getNi18Config();
+        if(location.pathname.startsWith('/'+config.localesSubDir+'/')){
+            const e=location.pathname.indexOf('/',config.localesSubDir.length+2);
             const [pl,pr]=(e===-1?
-                location.pathname.substring(_config.localsSubDir.length+2):
-                location.pathname.substring(_config.localsSubDir.length+2,e)
+                location.pathname.substring(config.localesSubDir.length+2):
+                location.pathname.substring(config.localesSubDir.length+2,e)
             ).split('-');
             language=pl;
             if(pr){
@@ -120,7 +249,7 @@ export function getLanguageRegion(config?:Partial<Ni18Config>):LanguageRegion
             }
         }
     }
-    return parseLanguageRegion(language+'-'+region);
+    return parseNi18Locale(language+'-'+region);
 }
 
 let defaultConfig:Ni18Config|null=null;
@@ -129,18 +258,13 @@ function _getDefaultConfig():Readonly<Ni18Config>
     if(defaultConfig){
         return defaultConfig;
     }
-
-    if(isServerSide && process.env.I18N_CONFIG){
-        defaultConfig=JSON.parse(process.env.I18N_CONFIG) as Ni18Config;
-        return defaultConfig;
-    }
     
     defaultConfig={
-        locals:defaultLocals,
+        locales:defaultLocales,
         out:defaultOut,
         nextOut:defaultNextOut,
-        localsSubDir:defaultLocalsSubDir,
-        cookiesLocalsSubDir:defaultCookiesLocalsSubDir,
+        localesSubDir:defaultLocalesSubDir,
+        cookiesLocalesSubDir:defaultCookiesLocalesSubDir,
         domain:isServerSide?defaultDomain:location.host,
         swapOut:defaultSwapOut,
     }
@@ -159,135 +283,23 @@ export function getDefaultConfig():Ni18Config
 /**
  * Creates a fully defined Ni18Config using defaults for properties not provided
  */
-export function createLocaleConfig({
-    locals=_getDefaultConfig().locals,
+export function createConfigWithOptions({
+    locales=_getDefaultConfig().locales,
     out=_getDefaultConfig().out,
     nextOut=_getDefaultConfig().nextOut,
-    localsSubDir=_getDefaultConfig().localsSubDir,
-    cookiesLocalsSubDir=_getDefaultConfig().cookiesLocalsSubDir,
+    localesSubDir=_getDefaultConfig().localesSubDir,
+    cookiesLocalesSubDir=_getDefaultConfig().cookiesLocalesSubDir,
     domain=_getDefaultConfig().domain,
     swapOut=_getDefaultConfig().swapOut,
 }:Partial<Ni18Config>={}):Ni18Config{
 
     return {
-        locals,
+        locales,
         out,
         nextOut,
-        localsSubDir,
+        localesSubDir,
         domain,
-        cookiesLocalsSubDir,
+        cookiesLocalesSubDir,
         swapOut,
     }
-}
-
-/**
- * Manages the current locale
- */
-export class Ni18Context
-{
-
-    public readonly supported:LanguageRegion[];
-
-    private _current:LanguageRegion;
-    public get current(){
-        return this._current;
-    }
-
-    public readonly config:Readonly<Ni18Config>;
-
-    public constructor(config:Ni18Config)
-    {
-
-        this.config=Object.freeze({...config})
-        this._current=getLanguageRegion(this.config);
-        this.supported=this.config.locals.map(s=>parseLanguageRegion(s));
-    }
-
-    public async setCurrentAsync(lr:Partial<LanguageRegion>|string)
-    {
-
-        if(typeof lr === 'string'){
-            lr=parseLanguageRegion(lr,this._current);
-        }
-
-        const tag=`${lr.language||this.current.language}${lr.region?'-'+lr.region:''}`
-        const filledLr:LanguageRegion={
-            language:lr.language||this.current.language,
-            region:lr.region||this.current.region,
-            tag
-        }
-        
-        if(!lr.language && !lr.region){
-            return;
-        }
-        if(lr.language){
-            document.cookie=`firebase-language-override=${lr.language}`;
-        }
-        if(lr.region){
-            document.cookie=`firebase-country-override=${lr.region}`;
-        }
-
-        document.cookie=`NEXT_LOCALE=${lr.language||this.current.language}${lr.region?'-'+lr.region:''}`
-
-        if(isDev){
-            try{
-                await fetch('/api/dev-ni18',{
-                    method:'POST',
-                    headers:{
-                        'Content-Type':'application/json'
-                    },
-                    body:JSON.stringify(filledLr)
-                })
-            }catch{}
-        }
-
-        window.location.reload();
-
-        return await new Promise<void>(()=>{
-            // never resolve. The reloading of the page will re-render everything
-        });
-    }
-
-    public getLink(path:string,language:string,region?:string|null)
-    {
-
-        if(path.startsWith('/')){
-            path=path.substring(1);
-        }
-
-        return `https://${this.config.domain}/${this.config.localsSubDir}/${language+(region?'-'+region:'')}/${path}`;
-    }
-}
-
-/**
- * Provides a Ni18Context for use by the useLocals hook
- */
-export const ReactNi18Context=createContext<Ni18Context|null>(null);
-
-/**
- * Returns a Ni18Context or the provided default if no Ni18Context is found
- */
-export function useNi18(localsDefault?:Ni18Context):Ni18Context
-{
-    const ctx=useContext(ReactNi18Context);
-    if(!ctx){
-        if(localsDefault){
-            return localsDefault;
-        }
-        throw new Error('useLocals used outside of ReactNi18Context');
-    }
-    return ctx;
-}
-
-/**
- * Creates a Ni18Context for use by a ReactNi18Context provider
- */
-export function useCreateNi18Context(config:Partial<Ni18Config>):Ni18Context
-{
-    const configRef=useRef(config);
-    return useMemo(()=>{
-        return new Ni18Context((isServerSide && process.env.I18N_CONFIG)?
-            _getDefaultConfig():
-            createLocaleConfig(configRef.current));
-    },[]);
 }

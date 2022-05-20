@@ -1,30 +1,14 @@
-import { ExampleLocalePicker, getLanguageRegion } from '@iyio/ni18';
+import { ExampleLocalePicker, locale } from '@iyio/ni18';
 import type { GetStaticProps, NextPage } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
+import { getStrings, Strings } from '../strings';
 import styles from '../styles/Home.module.css';
 
-interface Strings
-{
-  header:string;
-  body:string;
-}
-
-const exampleStrings:{[lng:string]:Strings}={
-  en:{
-    header:'The weather tody',
-    body:'It\'s hot and sunny'
-  },
-  es:{
-    header:'El tiempo hoy',
-    body:'Hace calor y está soleado'
-  }
-}
 
 export const getStaticProps:GetStaticProps=()=>
 {
-  const lr=getLanguageRegion();
-  return {props:{strings:exampleStrings[lr.language] ?? exampleStrings.en}}
+  return {props:{strings:getStrings('index',locale())}}
 }
 
 interface HomeProps
@@ -33,7 +17,6 @@ interface HomeProps
 }
 
 const Home: NextPage<HomeProps> = ({strings}) => {
-
   return (
     <div className={styles.container}>
       <Head>
@@ -46,6 +29,8 @@ const Home: NextPage<HomeProps> = ({strings}) => {
         <h1 className={styles.title}>
           {strings.header}
         </h1>
+
+        <p>locale = {locale()}</p>
 
         <p className={styles.description}>
           {strings.body}

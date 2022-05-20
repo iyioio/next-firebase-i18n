@@ -1,26 +1,27 @@
 import { useRouter } from 'next/router';
 import React from 'react';
-import { Ni18Context, useNi18 } from './lib';
+import { getLocaleLink, getNi18Config } from './lib';
 
-export function useNi18Links(localsDefault?:Ni18Context)
+export function useNi18Links()
 {
-    const locals=useNi18(localsDefault);
 
     const router=useRouter();
 
     const path=router.asPath;
 
-    const lngOnly=Array.from(new Set(locals.supported.map(s=>s.language)))
+    const config=getNi18Config();
+
+    const lngOnly=Array.from(new Set(config.locales.map(s=>s.split('-')[0])))
 
     return [
-        ...locals.supported.map(lr=>(
-            <link key={lr.tag} rel="alternate" hrefLang={lr.tag.toLowerCase()} href={locals.getLink(path,lr.language,lr.region)} />
+        ...config.locales.map(lr=>(
+            <link key={lr} rel="alternate" hrefLang={lr.toLowerCase()} href={getLocaleLink(path,lr)} />
         )),
 
         ...lngOnly.map(l=>(
-            <link key={l} rel="alternate" hrefLang={l} href={locals.getLink(path,l)} />
+            <link key={l} rel="alternate" hrefLang={l} href={getLocaleLink(path,l)} />
         )),
 
-        <link key="x-default" rel="alternate" hrefLang="x-default" href={locals.getLink(path,'en')} />
+        <link key="x-default" rel="alternate" hrefLang="x-default" href={getLocaleLink(path,'en')} />
     ]
 }

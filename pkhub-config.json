@@ -1,0 +1,14 @@
+{
+    "packages":[
+        {"path":"src"}
+    ],
+
+    "scopes":[
+        {
+            "target":"next-example",
+            "use":[
+                "@iyio/ni18"
+            ]
+        }
+    ]
+}
