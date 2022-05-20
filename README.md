@@ -45,7 +45,7 @@ yarn add @iyio/ni18
     "domain":"example.com"
 }
 ```
-*(note. Domain is need to support property alternate language page links and is not required during development)*
+*(note. Domain is needed to support alternate language page links and is not required during development)*
 <br/>
 
 
@@ -57,8 +57,8 @@ yarn add @iyio/ni18
 ``` diff
 import type { AppProps } from 'next/app'
 import '../styles/globals.css'
-+import { initNi18, useNi18Links } from '@iyio/ni18';
 +import Head from 'next/head';
++import { initNi18, useNi18Links } from '@iyio/ni18';
 +import i18nConfig from '../ni18-config.json';
 
 initNi18(ni18Config)
@@ -69,7 +69,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   return (
 +    <>
-+      <Head>other"> */}
++      <Head>
 +        {localeLinks}
 +      </Head>
       <Component {...pageProps} />
@@ -182,7 +182,7 @@ export const getStaticProps:GetStaticProps=async ()=>
 
 <br/>
 
-### Using within Components
+### Using with Components
 
 ``` tsx
 
@@ -218,8 +218,8 @@ npx ni18 -c custom-config.json --domain example.com
 
 ```
 
+./package.json
 ``` json
-// ./package.json
 {
     "scripts":{
         "build":"ni18"
