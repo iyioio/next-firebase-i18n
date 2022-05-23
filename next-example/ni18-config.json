@@ -1,4 +1,9 @@
 {
-    "locales":["en-US","es-MX"],
+    "defaultLocale":"en-US",
+    "locales":["en","es"],
+    "localeMappings":{
+        "en-US":"en",
+        "es-MX":"es"
+    },
     "domain":"example.com"
 }

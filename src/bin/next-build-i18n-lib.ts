@@ -11,13 +11,12 @@ export interface BuildInfo{
     tag:string;
     lng:string;
 }
-
 export function buildI18n(config:Ni18Config):BuildInfo[]
 {
 
     const localesDir=config.out+'/'+config.localesSubDir;
     const localesCookiesDir=config.out+'/'+config.cookiesLocalesSubDir;
-    console.info('NextBuildI18nConfig')
+    console.info('Ni18Config')
     console.info({config,localesDir});
 
     shell.env.I18N_CONFIG=JSON.stringify(config);
@@ -30,7 +29,7 @@ export function buildI18n(config:Ni18Config):BuildInfo[]
     shell.mkdir('-p',localesDir);
     shell.mkdir('-p',localesCookiesDir);
 
-    const builds:{basePath:boolean,out:string,tag:string,lng:string}[]=[];
+    const builds:BuildInfo[]=[];
 
     function build(basePath:boolean,tag:string)
     {
@@ -65,24 +64,34 @@ export function buildI18n(config:Ni18Config):BuildInfo[]
     console.info(chalk.magenta(`A total of ${config.locales.length*2}(s) builds will be created`))
 
     for(const lngRegion of config.locales){
+        const lower=lngRegion.toLowerCase();
+        if(config.localeMappings && Object.keys(config.localeMappings).find(k=>k.toLowerCase()===lower)){
+            continue;
+        }
         build(false,lngRegion);
         build(true,lngRegion);
     }
 
 
     const lngs:string[]=[];
-    const buildsCopy=[...builds]
-    for(const b of buildsCopy){
-        const lngTag=(b.basePath?'b-':'r-')+b.lng;
-        if(!lngs.includes(lngTag)){
-            lngs.push(lngTag);
-            const out=(b.basePath?localesDir:localesCookiesDir)+'/'+b.lng;
-            console.info(`Copying ${b.out} -> ${out}`);
-            shell.cp('-r',b.out,out);
+    const buildsCopy=[...builds];
+    for(const alias in config.localeMappings){
+        if(alias.includes('/') || alias.includes('\\')){
+            throw new Error(`Invalid alias ${alias}`);
+        }
+        const source=config.localeMappings[alias];
+        const sources=buildsCopy.filter(b=>b.tag===source);
+        if(!sources.length){
+            throw new Error(`locale mapping alias (${alias}) points to an invalid locale {${source}}`)
+        }
+        for(const src of sources){
+            const out=(src.basePath?localesDir:localesCookiesDir)+'/'+alias;
+            console.info(`Copying (${alias}) ${src.out} -> ${out}`);
+            shell.cp('-r',src.out,out);
             builds.push({
-                ...b,
+                ...src,
                 out,
-                tag:b.lng
+                tag:alias
             })
         }
     }
@@ -104,8 +113,12 @@ export function buildI18n(config:Ni18Config):BuildInfo[]
     }
 
     // copy default language to root
-    console.info(`Coping default tag to root ${builds[0].out} -> ${config.out}`);
-    shell.cp('-r',builds[0].out+'/*',config.out);
+    const defaultBuild=builds.find(b=>b.tag===config.defaultLocale);
+    if(!defaultBuild){
+        throw new Error('No build found that matches defaultLocale')
+    }
+    console.info(`Coping default tag to root ${defaultBuild.out} -> ${config.out}`);
+    shell.cp('-r',defaultBuild.out+'/*',config.out);
 
     if(config.swapOut){
         console.info(`swapping output ${config.out} -> ${config.nextOut}`);

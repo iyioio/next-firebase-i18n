@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import { defaultConfigPath, defaultCookiesLocalesSubDir, defaultDomain, defaultLocales, defaultLocalesSubDir, defaultNextOut, defaultOut, defaultSwapOut, Ni18Config, Ni18Locale, ssOverrideFile } from "./types";
+import { defaultConfigPath, defaultCookiesLocalesSubDir, defaultDomain, defaultLocale, defaultLocales, defaultLocalesSubDir, defaultNextOut, defaultOut, defaultSwapOut, Ni18Config, Ni18Locale, ssOverrideFile } from "./types";
 
 const isDev=process.env.NODE_ENV==='development';
 
@@ -29,9 +29,26 @@ export const getNi18Config=():Readonly<Ni18Config>=>{
     }else{
         c=getDefaultConfig();
     }
+    normalizeConfig(c);
      _config=Object.freeze(c);
     Object.freeze(_config.locales);
     return _config;
+}
+
+export function normalizeConfig(config:Ni18Config):Ni18Config
+{
+    if(config.localeMappings){
+        for(const e in config.localeMappings){
+            const el=e.toLowerCase();
+            if(e && !config.locales.find(l=>l.toLowerCase()===el)){
+                config.locales.push(e);
+            }
+        }
+    }
+    if(!config.defaultLocale){
+        config.defaultLocale=config.locales[0]||defaultLocale;
+    }
+    return config;
 }
 
 export function initNi18(config:Partial<Ni18Config>):Readonly<Ni18Config>
@@ -48,6 +65,23 @@ export function initNi18(config:Partial<Ni18Config>):Readonly<Ni18Config>
  */
 export const locale=()=>{
     return getNi18Locale().tag;
+}
+
+/**
+ * Returns the current region i.e. US. For non-region specific locales an empty string will be
+ * returned.
+ * This function is shorthand for getNi18Locale().region
+ */
+export const region=()=>{
+    return getNi18Locale().region;
+}
+
+/**
+ * Returns the current language i.e. en.
+ * This function is shorthand for getNi18Locale().language
+ */
+export const lang=()=>{
+    return getNi18Locale().language;
 }
 
 /**
@@ -89,8 +123,16 @@ async function setClientSideLanguageAsync(locale:Ni18Locale|string|null)
             locale=parseNi18Locale(locale);
         }
         
-        document.cookie=`firebase-language-override=${locale.language}`;
-        document.cookie=`firebase-country-override=${locale.region}`;
+        if(locale.language){
+            document.cookie=`firebase-language-override=${locale.language}`;
+        }else{
+            document.cookie=`firebase-language-override=en;expires=Thu, 01 Jan 1970 00:00:01 GMT`;
+        }
+        if(locale.region){
+            document.cookie=`firebase-country-override=${locale.region}`;
+        }else{
+            document.cookie=`firebase-country-override=US;expires=Thu, 01 Jan 1970 00:00:01 GMT`;
+        }
 
         //document.cookie=`NEXT_LOCALE=${locale.language||this.current.language}${locale.region?'-'+locale.region:''}`
 
@@ -169,18 +211,18 @@ export function getLocaleLink(path:string,locale:string)
 /**
  * Parses a string into a Ni18Locale
  */
-export function parseNi18Locale(locale?:string|Ni18Locale|null,defaults?:Ni18Locale):Ni18Locale
+export function parseNi18Locale(locale?:string|Ni18Locale|null):Ni18Locale
 {
     if(locale && typeof(locale)==='object'){
         return locale;
     }
     let [language,region]=(locale||'').split('-');
-    language=language?.split(',')[0].toLowerCase()||defaults?.language||'en',
-    region=region?.split(',')[0].toUpperCase()||defaults?.region||'US'
+    language=language?.split(',')[0].toLowerCase()||'en',
+    region=region?.split(',')[0].toUpperCase()||''
     return {
         language,
         region,
-        tag:language+'-'+region,
+        tag:language+(region?'-'+region:''),
     }
 }
 
@@ -201,11 +243,13 @@ export function getNi18Locale():Ni18Locale
         region=parts[1]||'';
     }
 
+    let hasCookie=false;
     if(typeof document !== 'undefined'){
         const cookies=document.cookie.split(';').map(c=>c.trim());
         const cl=cookies.find(c=>c.startsWith('firebase-language-override='))?.split('=')[1]?.trim();
         const cr=cookies.find(c=>c.startsWith('firebase-country-override='))?.split('=')[1]?.trim();
         if(cl){
+            hasCookie=true;
             language=cl;
         }
         if(cr){
@@ -226,14 +270,14 @@ export function getNi18Locale():Ni18Locale
             language=el||'en';
         }
         if(!region){
-            region=er||'US';
+            region=er;
         }
     }else{
         let [nl,nr]=navigator.language.split('-');
         if(!language){
             language=nl;
         }
-        if(!region){
+        if(!region && !hasCookie){
             region=nr;
         }
         const config=getNi18Config();
@@ -260,6 +304,7 @@ function _getDefaultConfig():Readonly<Ni18Config>
     }
     
     defaultConfig={
+        defaultLocale,
         locales:defaultLocales,
         out:defaultOut,
         nextOut:defaultNextOut,
@@ -284,6 +329,7 @@ export function getDefaultConfig():Ni18Config
  * Creates a fully defined Ni18Config using defaults for properties not provided
  */
 export function createConfigWithOptions({
+    defaultLocale=_getDefaultConfig().defaultLocale,
     locales=_getDefaultConfig().locales,
     out=_getDefaultConfig().out,
     nextOut=_getDefaultConfig().nextOut,
@@ -291,9 +337,11 @@ export function createConfigWithOptions({
     cookiesLocalesSubDir=_getDefaultConfig().cookiesLocalesSubDir,
     domain=_getDefaultConfig().domain,
     swapOut=_getDefaultConfig().swapOut,
+    localeMappings=_getDefaultConfig().localeMappings
 }:Partial<Ni18Config>={}):Ni18Config{
 
-    return {
+    return normalizeConfig({
+        defaultLocale,
         locales,
         out,
         nextOut,
@@ -301,5 +349,6 @@ export function createConfigWithOptions({
         domain,
         cookiesLocalesSubDir,
         swapOut,
-    }
+        localeMappings
+    })
 }

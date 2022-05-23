@@ -10,7 +10,7 @@
     "em": "firebase emulators:start"
   },
   "dependencies": {
-    "@iyio/ni18": "0.0.12",
+    "@iyio/ni18": "0.0.14",
     "next": "12.1.6",
     "react": "18.1.0",
     "react-dom": "18.1.0"
@@ -23,5 +23,10 @@
     "eslint-config-next": "12.1.6",
     "shelljs": "^0.8.5",
     "typescript": "4.6.4"
+  },
+  "pnpm": {
+    "_overrides": {
+      "@iyio/ni18": "../src"
+    }
   }
 }

@@ -41,6 +41,7 @@ yarn add @iyio/ni18
 
 ``` json
 {
+    "defaultLocale":"en-US",
     "locales":["en-US","es-MX"],
     "domain":"example.com"
 }
@@ -165,41 +166,58 @@ async function setLocaleAsync(locale:string|Ni18Locale|null);
 
 <br/>
 
-### Using with getStaticProps
+### Usage example 
 
 ``` ts
+import type {GetStaticProps, NextPage} from 'next'
+import { locale, region, lang, setLocaleAsync } from '@iyio/ni18';
 
-import { locale } from '@iyio/ni18';
-
-export const getStaticProps:GetStaticProps=async ()=>
+export const getStaticProps:GetStaticProps<LocaleExampleProps>=async ()=>
 {
+  // Use locale() in api request to get content                            👇
   const response=await fetch(`https://awesome.io/api/cool-stuff?locale=${locale()}`);
   const content=await response.json();
   return {props:{awesomeContent:content}}
 }
-```
 
-<br/>
-
-### Using with Components
-
-``` tsx
-
-import { locale, setLocaleAsync } from '@iyio/ni18';
-
-export function LocalePicker(){
-
-    return (
-        <div>
-            <h2>Current locale is {locale()}</h2>
-            <p>
-                <button onClick={()=>setLocaleAsync('en-US')}>en-US</button>
-                <button onClick={()=>setLocaleAsync('es-MX')}>es-MX</button>
-            </p>
-        </div>
-    )
-
+interface LocaleExampleProps
+{
+  header:string;
+  body:string;
 }
+
+const LocaleExample:NextPage<LocaleExampleProps>=({
+  header,
+  body
+})=>{
+
+  return (
+    <div>
+
+      {/* Show current locale 👇 ( en-US ) */}
+      <h2>Current locale is {locale()}</h2>
+
+      {/* Show current language 👇 ( en ) */}
+      <h2>Current language is {lang()}</h2>
+
+      {/* Show current region 👇 ( US ) */}
+      <h2>Current region is {region()}</h2>
+
+      <p>
+        {/* Set the current locale            👇                 */}
+        <button onClick={()=>setLocaleAsync('en-US')}>en-US</button>
+        <button onClick={()=>setLocaleAsync('es-MX')}>es-MX</button>
+      </p>
+
+      <h2>Content from API</h2>
+      <h3>{header}</h3>
+      <p>{body}</p>
+    </div>
+  )
+}
+
+export default LocalExample;
+
 ```
 <br/>
 
@@ -235,12 +253,34 @@ ni18 config files implement the Ni18Config interface.
 ``` ts
 export interface Ni18Config
 {
+
     /**
-     * An array of language-region tags.
-     * @example ['en-US','en-MX','da-DK']
+     * The default locale. This value must be included in the locales property. If not defined in
+     * the ni18 config file the first locale in the locales property will be used.
+     * @alias z
+     */
+    defaultLocale:string;
+
+    /**
+     * An array of supported locales.
+     * @example ['en','en-US','es','es-MX','da-DK']
      * @alias r
      */
     locales:string[];
+
+    /**
+     * Creates aliases for locales. This is useful for when you want to use a single locale build
+     * for multiple locales. For example, if all of your content has a locale of either en (english)
+     * or es (spanish) but you want locale builds for en, en-US, es and es-MX you can create aliases
+     * that point en-US to en and es-MX to es ( {"en-US":"en", "es-MX":"es"} ). Using aliases
+     * instead of defining locales in the locales property reduces the number of locale builds since
+     * only the source locale is built and the alias is created by coping the build output of the
+     * source locale.
+     *
+     * CLI format: alias=source, es-US=en
+     * @alias m
+     */
+    localeMappings?:{[locale:string]:string};
 
     /**
      * The domain the build targets. This is required for alternate language links to work
@@ -282,7 +322,7 @@ export interface Ni18Config
      * The name of sub-directory where cookie based language specify builds are written to.
      * The files written here are not intended to be directly browse-able. They are used by
      * i18n url rewrites to support cookie based language switching.
-     * @alias m
+     * @alias k
      */
     cookiesLocalesSubDir:string;
 }
@@ -291,6 +331,7 @@ export interface Ni18Config
 Example ni18 config file
 ``` json
 {
+    "defaultLocale":"en-US",
     "locales":["en-US","es-MX"],
     "domain":"example.com",
     "out":"./out-ni18",
