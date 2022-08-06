@@ -219,6 +219,9 @@ export function parseNi18Locale(locale?:string|Ni18Locale|null):Ni18Locale
     let [language,region]=(locale||'').split('-');
     language=language?.split(',')[0].toLowerCase()||'en',
     region=region?.split(',')[0].toUpperCase()||''
+    if(region.toLowerCase()==='undefined'){
+        region='';
+    }
     return {
         language,
         region,
@@ -293,7 +296,7 @@ export function getNi18Locale():Ni18Locale
             }
         }
     }
-    return parseNi18Locale(language+'-'+region);
+    return parseNi18Locale(region?language+'-'+region:language);
 }
 
 let defaultConfig:Ni18Config|null=null;
