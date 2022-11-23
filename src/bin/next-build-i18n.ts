@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 import commandLineArgs from 'command-line-args';
-import * as fs from 'fs';
-import path from 'path';
+import * as fs from 'node:fs';
+import path from 'node:path';
 import shell from 'shelljs';
 import { normalizeConfig } from '../lib';
 import { defaultConfigPath, defaultCookiesLocalesSubDir, defaultDomain, defaultLocale, defaultLocalesSubDir, defaultNextOut, defaultOut, defaultSwapOut, Ni18CliArgs, Ni18Config } from '../types';
